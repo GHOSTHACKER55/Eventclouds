@@ -16,8 +16,8 @@
         .staff-input-box { border: 2px solid #3b82f6; border-radius: 20px; margin: 30px 0; padding: 20px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15); }
         .staff-input-box input { width: 100%; border: none !important; background: transparent !important; text-align: center; font-size: 24px; letter-spacing: 8px; color: #000; outline: none; }
         .unlock-btn { background: #000; color: #fff; width: 100%; padding: 22px; border-radius: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
-        input { border: 2px solid #f0f0f0; outline: none; transition: all 0.2s; border-radius: 18px; font-weight: 600; color: #000; }
-        input:focus { border-color: #000; background: #fff; }
+        input, textarea { border: 2px solid #f0f0f0; outline: none; transition: all 0.2s; border-radius: 18px; font-weight: 600; color: #000; }
+        input:focus, textarea:focus { border-color: #000; background: #fff; }
         .back-btn-ui { display: none; cursor: pointer; font-size: 1.8rem; font-weight: 900; color: #fff; margin-right: 15px; }
         .nav-card { box-shadow: 0 -10px 40px rgba(0,0,0,0.5); background: #111; border-top: 1px solid #222; }
         .step-hidden { display: none; }
@@ -26,7 +26,7 @@
 </head>
 <body>
 
-<!-- STAFF MODAL -->
+<!-- STAFF AUTH MODAL -->
 <div id="staffAuthModal" class="modal">
     <div class="staff-portal-card">
         <h2 class="text-3xl italic font-black uppercase tracking-tighter">STAFF ACCESS</h2>
@@ -70,27 +70,9 @@
                 <input type="text" id="ord-fullname" placeholder="NAME" class="w-full p-4 bg-gray-50 text-[11px]">
                 <input type="text" id="ord-discord" placeholder="DISCORD ID" class="w-full p-4 bg-gray-50 text-[11px]">
                 <input type="text" id="ord-whatsapp" placeholder="WHATSAPP NUMBER (OPTIONAL)" class="w-full p-4 bg-gray-50 text-[11px]">
-                <button onclick="nextStep(2)" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px] uppercase mt-6">Next Step</button>
+                <button onclick="submitOrder()" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px] uppercase mt-6">Confirm & Pay</button>
             </div>
         </div>
-<div id="check-step-2" class="step-hidden">
-            <div class="flex items-center mb-8">
-                <span onclick="nextStep(1)" class="cursor-pointer text-2xl font-black mr-4">←</span>
-                <h2 class="text-xl font-black uppercase tracking-tighter">2. Payment</h2>
-            </div>
-            <div class="bg-gray-50 p-6 rounded-[30px] mb-6 text-center">
-                <p class="text-[10px] font-bold opacity-50 uppercase">Easypaisa Recipient</p>
-                <p class="text-sm font-bold mb-1">Sumera Ismail</p>
-                <p class="text-2xl font-black tracking-tighter">03209797510</p>
-            </div>
-            <button onclick="submitOrder()" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px] uppercase mb-3">I Have Paid</button>
-            <p class="text-[9px] font-bold opacity-30 uppercase text-center italic mb-3">Or contact us first:</p>
-            <div class="grid grid-cols-2 gap-2">
-                <button onclick="contactWhatsApp()" class="bg-green-600 text-white py-4 rounded-2xl font-black text-[9px] uppercase">WhatsApp</button>
-                <button onclick="contactDiscord()" class="bg-blue-600 text-white py-4 rounded-2xl font-black text-[9px] uppercase">Discord</button>
-            </div>
-        </div>
-
         <div id="check-step-3" class="step-hidden text-center py-8">
             <div class="text-5xl mb-6">✅</div>
             <h2 class="text-2xl font-black uppercase tracking-tighter mb-4">Order Logged</h2>
@@ -126,14 +108,14 @@
                 <div class="grid md:grid-cols-2 gap-4">
                     <input type="text" id="p-name" placeholder="NAME" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
                     <input type="number" id="p-price" placeholder="PRICE" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
+                    <textarea id="p-desc" placeholder="DESCRIPTION" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px] resize-none h-24 rounded-xl"></textarea>
                     <input type="file" id="p-file" class="text-[10px] p-2 bg-[#1a1a1a] text-gray-400 w-full rounded-xl">
                     <button id="p-submit-btn" onclick="handlePublish()" class="bg-white text-black p-4 rounded-2xl font-black text-[11px] uppercase">Post Product</button>
                 </div>
             </div>
             <div id="inventory-list" class="grid gap-3"></div>
         </div>
-
-        <div id="tab-orders" class="adm-tab hidden space-y-4"></div>
+<div id="tab-orders" class="adm-tab hidden space-y-4"></div>
         <div id="tab-users" class="adm-tab hidden space-y-3"></div>
     </section>
 </main>
@@ -158,6 +140,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+// Firebase Config
 const firebaseConfig = {
     apiKey: "AIzaSyB-7z5W4laDVqgtQNUOrDkAMQU7sHw0NQY",
     authDomain: "ghosty-cd076.firebaseapp.com",
@@ -172,66 +155,86 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 let currentUser = null;
-let isSignUp = true;
 let selectedProduct = "";
+let isSignUp = true;
 
-// Global UI
+// GLOBAL UI FUNCTIONS
 window.openModal = id => document.getElementById(id).classList.add('active-modal');
 window.closeModal = id => document.getElementById(id).classList.remove('active-modal');
 window.showPage = id => {
     document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
     document.getElementById(`page-${id}`).classList.remove('hidden');
-    document.getElementById('global-back-btn').style.display = (id==='home')?'none':'block';
+    document.getElementById('global-back-btn').style.display = (id === 'home') ? 'none' : 'block';
 };
 
-// STAFF
+// STAFF AUTH
 window.verifyStaffKey = () => {
-    if(document.getElementById('staff-key-input').value==="GHOSTYDEVELOPER"){
-        closeModal('staffAuthModal'); showPage('admin'); loadAdminExtras();
+    if(document.getElementById('staff-key-input').value === "GHOSTYDEVELOPER") {
+        closeModal('staffAuthModal'); 
+        showPage('admin'); 
+        loadAdminExtras();
     } else alert("Wrong Key");
 };
 
-// PRODUCT UPLOAD
+// PRODUCT UPLOAD WITH DESCRIPTION
 window.handlePublish = async () => {
-    const name=document.getElementById('p-name').value;
-    const price=document.getElementById('p-price').value;
-    const fileInput=document.getElementById('p-file');
-    const btn=document.getElementById('p-submit-btn');
+    const name = document.getElementById('p-name').value;
+    const price = document.getElementById('p-price').value;
+    const desc = document.getElementById('p-desc').value;
+    const fileInput = document.getElementById('p-file');
+    const btn = document.getElementById('p-submit-btn');
 
-    if(!name || !price || !fileInput.files[0]){ alert("Please fill all fields and select an image."); return; }
+    if(!name || !price || !desc || !fileInput.files[0]) {
+        alert("Please fill all fields and select an image.");
+        return;
+    }
 
-    btn.disabled=true; btn.innerText="UPLOADING...";
+    btn.disabled = true;
+    btn.innerText = "UPLOADING...";
 
     try {
-        const fd=new FormData(); fd.append("image",fileInput.files[0]);
-        const r=await fetch("https://api.imgbb.com/1/upload?key=ed019955ccdfc5952b136e449d727e0b",{method:"POST",body:fd});
-        const d=await r.json();
+        const fd = new FormData(); 
+        fd.append("image", fileInput.files[0]);
+        const r = await fetch("https://api.imgbb.com/1/upload?key=ed019955ccdfc5952b136e449d727e0b", { method: "POST", body: fd });
+        const d = await r.json();
 
-        if(d.success){
-            await addDoc(collection(db,"products"),{name,price,image:d.data.url,createdAt:serverTimestamp()});
+        if(d.success) {
+            await addDoc(collection(db, "products"), { 
+                name, price, description: desc, image: d.data.url, createdAt: serverTimestamp() 
+            });
             alert("✅ PRODUCT UPLOADED SUCCESSFULLY!");
-            document.getElementById('p-name').value=""; document.getElementById('p-price').value=""; fileInput.value="";
-        } else alert("Image upload failed. Try again.");
-    } catch(e){console.error(e); alert("Error: "+e.message);} 
-    finally{btn.disabled=false; btn.innerText="POST PRODUCT";}
+            document.getElementById('p-name').value = "";
+            document.getElementById('p-price').value = "";
+            document.getElementById('p-desc').value = "";
+            fileInput.value = "";
+        } else {
+            alert("Image upload failed. Try again.");
+        }
+    } catch(e) {
+        console.error(e);
+        alert("Error: " + e.message); 
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "Post Product";
+    }
 };
 
-// REALTIME PRODUCT SYNC
-onSnapshot(query(collection(db,"products"),orderBy("createdAt","desc")),snap=>{
-    const productData = snap.docs.map(doc=>({id:doc.id,...doc.data()}));
-
-    document.getElementById('product-grid').innerHTML = productData.map(p=>`
+// REALTIME PRODUCTS
+onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), snap => {
+    const productData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    document.getElementById('product-grid').innerHTML = productData.map(p => `
         <div class="bg-[#111] rounded-[35px] border border-[#222] overflow-hidden">
             <img src="${p.image}" class="w-full aspect-square object-cover">
             <div class="p-5">
                 <p class="text-[10px] font-black text-white uppercase opacity-30">${p.name}</p>
+                <p class="text-[10px] text-gray-400 mb-2">${p.description}</p>
                 <p class="text-xl font-black mb-4 text-white">Rs.${p.price}</p>
                 <button onclick="startCheckout('${p.name}')" class="w-full py-4 bg-white text-black rounded-2xl text-[9px] font-black uppercase">Buy Now</button>
             </div>
         </div>
     `).join('');
 
-    document.getElementById('inventory-list').innerHTML = productData.map(p=>`
+    document.getElementById('inventory-list').innerHTML = productData.map(p => `
         <div class="bg-[#111] p-4 rounded-2xl border border-[#222] flex justify-between items-center">
             <p class="text-[10px] font-black uppercase text-white">${p.name}</p>
             <button onclick="removeProduct('${p.id}')" class="text-red-500 font-black text-[8px] uppercase">Remove</button>
@@ -239,18 +242,17 @@ onSnapshot(query(collection(db,"products"),orderBy("createdAt","desc")),snap=>{
     `).join('');
 });
 
-// ADMIN EXTRAS
+// ADMIN USERS & ORDERS
 window.loadAdminExtras = () => {
-    onSnapshot(collection(db,"users"),snap=>{
-        document.getElementById('tab-users').innerHTML = snap.docs.map(d=>`
+    onSnapshot(collection(db, "users"), snap => {
+        document.getElementById('tab-users').innerHTML = snap.docs.map(d => `
             <div class="bg-[#111] p-6 rounded-3xl border border-[#222]">
                 <p class="text-[11px] font-black text-white uppercase">${d.data().name}</p>
                 <p class="text-[9px] text-gray-500">WA: ${d.data().phone} | ${d.data().email}</p>
             </div>`).join('');
     });
-
-    onSnapshot(query(collection(db,"orders"),orderBy("timestamp","desc")),snap=>{
-        document.getElementById('tab-orders').innerHTML = snap.docs.map(d=>`
+    onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
+        document.getElementById('tab-orders').innerHTML = snap.docs.map(d => `
             <div class="bg-[#111] p-6 rounded-3xl border border-[#222] flex justify-between items-start">
                 <div>
                     <p class="text-[12px] font-black text-blue-400 uppercase">${d.data().product}</p>
@@ -261,60 +263,73 @@ window.loadAdminExtras = () => {
     });
 };
 
-window.removeProduct=async id=>{if(confirm("Permanently delete this product?")) await deleteDoc(doc(db,"products",id));};
-window.removeOrder=async id=>{if(confirm("Delete this order?")) await deleteDoc(doc(db,"orders",id));};
+// REMOVE PRODUCT / ORDER
+window.removeProduct = async id => { if(confirm("Permanently delete this product?")) await deleteDoc(doc(db, "products", id)); };
+window.removeOrder = async id => { if(confirm("Delete this order?")) await deleteDoc(doc(db, "orders", id)); };
 
 // AUTH
-window.handleAuth=async()=>{
-    const email=document.getElementById('auth-email').value;
-    const pass=document.getElementById('auth-pass').value;
+window.handleAuth = async () => {
+    const email = document.getElementById('auth-email').value;
+    const pass = document.getElementById('auth-pass').value;
     try {
-        if(isSignUp){
-            const res=await createUserWithEmailAndPassword(auth,email,pass);
-            await setDoc(doc(db,"users",res.user.uid),{
-                name:document.getElementById('reg-name').value,
-                phone:document.getElementById('reg-phone').value,
-                email,password:pass
+        if(isSignUp) {
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await setDoc(doc(db, "users", res.user.uid), { 
+                name: document.getElementById('reg-name').value, 
+                phone: document.getElementById('reg-phone').value, 
+                email, 
+                password: pass 
             });
-        } else await signInWithEmailAndPassword(auth,email,pass);
+        } else {
+            await signInWithEmailAndPassword(auth, email, pass);
+        }
         closeModal('authModal');
-    } catch(e){alert(e.message);}
+    } catch(e) { alert(e.message); }
 };
 
-window.toggleAuthMode=()=>{
-    isSignUp=!isSignUp;
-    document.getElementById('auth-title').innerText=isSignUp?"Create Account":"Sign In";
-    document.getElementById('auth-submit-btn').innerText=isSignUp?"Register Now":"Sign In";
-    document.getElementById('signup-fields').style.display=isSignUp?'block':'none';
+window.toggleAuthMode = () => {
+    isSignUp = !isSignUp;
+    document.getElementById('auth-title').innerText = isSignUp ? "Create Account" : "Sign In";
+    document.getElementById('auth-submit-btn').innerText = isSignUp ? "Register Now" : "Sign In";
+    document.getElementById('signup-fields').style.display = isSignUp ? 'block' : 'none';
 };
 
-onAuthStateChanged(auth,user=>{
-    currentUser=user;
-    document.getElementById('user-display').innerText=user?"Connected":"Guest";
+onAuthStateChanged(auth, user => { 
+    currentUser = user; 
+    document.getElementById('user-display').innerText = user ? "Connected" : "Guest"; 
 });
 
-// CHECKOUT FLOW
-window.startCheckout=pName=>{if(!currentUser) return openModal('authModal'); selectedProduct=pName; nextStep(1); openModal('checkoutModal');};
-window.nextStep=s=>{[1,2,3].forEach(n=>document.getElementById(`check-step-${n}`).classList.add('step-hidden')); document.getElementById(`check-step-${s}`).classList.remove('step-hidden');};
-window.submitOrder=async()=>{
-    const ign=document.getElementById('ord-discord').value;
-    const name=document.getElementById('ord-fullname').value;
-    const wa=document.getElementById('ord-whatsapp').value||"N/A";
-    await addDoc(collection(db,"orders"),{product:selectedProduct,ign,name,wa,timestamp:serverTimestamp()});
-    nextStep(3); setTimeout(()=>contactWhatsApp(),1500);
+// CHECKOUT (1 step)
+window.startCheckout = pName => { 
+    if(!currentUser) return openModal('authModal'); 
+    selectedProduct = pName; 
+    openModal('checkoutModal'); 
 };
 
-window.contactWhatsApp=()=>{
-    const msg=encodeURIComponent(`👑 *NEW ORDER* 👑\nItem: ${selectedProduct}\nName: ${document.getElementById('ord-fullname').value}\nDiscord: ${document.getElementById('ord-discord').value}`);
-    window.open(`https://wa.me/923706116030?text=${msg}`,"_blank");
+window.submitOrder = async () => {
+    const ign = document.getElementById('ord-discord').value;
+    const name = document.getElementById('ord-fullname').value;
+    const wa = document.getElementById('ord-whatsapp').value || "N/A";
+    await addDoc(collection(db, "orders"), { product: selectedProduct, ign, name, wa, timestamp: serverTimestamp() });
+    document.getElementById('check-step-1').classList.add('step-hidden');
+    document.getElementById('check-step-3').classList.remove('step-hidden');
+    setTimeout(() => contactWhatsApp(), 1500);
 };
 
-window.contactDiscord=()=>{window.open(`https://discord.com/users/devil_hunter_______`,"_blank");};
-window.switchAdminTab=t=>{
-    document.querySelectorAll('.adm-btn').forEach(b=>{b.classList.add('bg-[#111]','text-gray-500');b.classList.remove('bg-white','text-black');});
+// CONTACT
+window.contactWhatsApp = () => {
+    const msg = encodeURIComponent(`👑 *NEW ORDER* 👑\nItem: ${selectedProduct}\nName: ${document.getElementById('ord-fullname').value}\nDiscord: ${document.getElementById('ord-discord').value}`);
+    window.open(`https://wa.me/923706116030?text=${msg}`, "_blank");
+};
+
+window.contactDiscord = () => { window.open(`https://discord.com/users/devil_hunter_______`, "_blank"); };
+
+// ADMIN TAB SWITCH
+window.switchAdminTab = t => {
+    document.querySelectorAll('.adm-btn').forEach(b => { b.classList.add('bg-[#111]','text-gray-500'); b.classList.remove('bg-white','text-black'); });
     document.getElementById(`btn-${t}`).classList.replace('bg-[#111]','bg-white');
     document.getElementById(`btn-${t}`).classList.replace('text-gray-500','text-black');
-    document.querySelectorAll('.adm-tab').forEach(tab=>tab.classList.add('hidden'));
+    document.querySelectorAll('.adm-tab').forEach(tab => tab.classList.add('hidden'));
     document.getElementById(`tab-${t}`).classList.remove('hidden');
 };
 
