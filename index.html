@@ -11,112 +11,69 @@
         .brand-logo { font-size: 1.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1.5px; color: #fff; display: flex; align-items: center; gap: 8px; }
         .modal { display: none; position: fixed; z-index: 1000; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); }
         .active-modal { display: flex; align-items: center; justify-content: center; }
-        .portal-card { background: #fff; border-radius: 45px; padding: 40px 30px; width: 95%; max-width: 400px; max-height: 90vh; overflow-y: auto; color: #000; }
+        .portal-card { background: #fff; border-radius: 45px; padding: 40px 30px; width: 95%; max-width: 400px; color: #000; }
         .staff-portal-card { background: #fff; border-radius: 50px; padding: 60px 40px; width: 95%; max-width: 420px; text-align: center; color: #000; }
-        .staff-input-box { border: 2px solid #3b82f6; border-radius: 20px; margin: 30px 0; padding: 20px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15); }
-        .staff-input-box input { width: 100%; border: none !important; background: transparent !important; text-align: center; font-size: 24px; letter-spacing: 8px; color: #000; outline: none; }
-        .unlock-btn { background: #000; color: #fff; width: 100%; padding: 22px; border-radius: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
-        input, textarea { border: 2px solid #f0f0f0; outline: none; transition: all 0.2s; border-radius: 18px; font-weight: 600; color: #000; }
-        input:focus, textarea:focus { border-color: #000; background: #fff; }
-        .back-btn-ui { display: none; cursor: pointer; font-size: 1.8rem; font-weight: 900; color: #fff; margin-right: 15px; }
-        .nav-card { box-shadow: 0 -10px 40px rgba(0,0,0,0.5); background: #111; border-top: 1px solid #222; }
+        .staff-input-box { border: 2px solid #3b82f6; border-radius: 20px; margin: 30px 0; padding: 20px; }
+        .staff-input-box input { width: 100%; border: none !important; background: transparent !important; text-align: center; font-size: 24px; color: #000; outline: none; }
+        .unlock-btn { background: #000; color: #fff; width: 100%; padding: 22px; border-radius: 20px; font-weight: 900; text-transform: uppercase; font-size: 12px; }
+        input, textarea { border: 2px solid #f0f0f0; outline: none; border-radius: 18px; font-weight: 600; color: #000; }
+        .nav-card { background: #111; border-top: 1px solid #222; }
         .step-hidden { display: none; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .loading-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div id="staffAuthModal" class="modal">
     <div class="staff-portal-card">
-        <h2 class="text-3xl italic font-black uppercase tracking-tighter">STAFF ACCESS</h2>
+        <h2 class="text-3xl font-black uppercase">STAFF ACCESS</h2>
         <div class="staff-input-box"><input type="password" id="staff-key-input" placeholder="••••••••"></div>
         <button onclick="verifyStaffKey()" class="unlock-btn">Unlock</button>
-        <button onclick="closeModal('staffAuthModal')" class="w-full text-[10px] font-black opacity-20 uppercase mt-8 tracking-widest">Cancel</button>
+        <button onclick="closeModal('staffAuthModal')" class="w-full text-[10px] font-black opacity-20 mt-8">Cancel</button>
     </div>
 </div>
 
 <div id="authModal" class="modal">
     <div class="portal-card">
-        <h2 id="auth-title" class="text-2xl font-black uppercase mb-6 tracking-tighter">Create Account</h2>
+        <h2 id="auth-title" class="text-2xl font-black uppercase mb-6">Account</h2>
         <div id="signup-fields" class="space-y-3">
             <input type="text" id="reg-name" placeholder="FULL NAME" class="w-full p-4 bg-gray-50 text-[11px]">
-            <input type="text" id="reg-phone" placeholder="WHATSAPP NUMBER" class="w-full p-4 bg-gray-50 text-[11px]">
         </div>
         <div class="space-y-3 mt-3">
             <input type="email" id="auth-email" placeholder="EMAIL ADDRESS" class="w-full p-4 bg-gray-50 text-[11px]">
             <input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full p-4 bg-gray-50 text-[11px]">
-            <button onclick="handleAuth()" id="auth-submit-btn" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px] uppercase mt-4">Register Now</button>
-            <p onclick="toggleAuthMode()" id="auth-toggle" class="text-[10px] font-bold text-center cursor-pointer opacity-50 uppercase mt-6">Already have an account? Sign In</p>
-            <button onclick="closeModal('authModal')" class="w-full text-[9px] font-black opacity-20 uppercase mt-4">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<div id="checkoutModal" class="modal">
-    <div class="portal-card">
-        <div id="check-step-1">
-            <h2 class="text-xl font-black uppercase mb-6">1. Order Details</h2>
-            <div class="space-y-3">
-                <input type="text" id="ord-fullname" placeholder="NAME" class="w-full p-4 bg-gray-50 text-[11px]">
-                <input type="text" id="ord-discord" placeholder="DISCORD ID" class="w-full p-4 bg-gray-50 text-[11px]">
-                <button onclick="nextStep(2)" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px] mt-6">NEXT</button>
-            </div>
-        </div>
-        <div id="check-step-2" class="step-hidden">
-            <h2 class="text-xl font-black uppercase mb-6">2. Payment</h2>
-            <div class="bg-gray-50 p-6 rounded-[30px] mb-6 text-center">
-                <p class="text-[10px] opacity-50 uppercase font-bold">Easypaisa</p>
-                <p class="text-2xl font-black">03209797510</p>
-            </div>
-            <button onclick="submitOrder()" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px]">I HAVE PAID</button>
-        </div>
-        <div id="check-step-3" class="step-hidden text-center py-8">
-            <div class="text-5xl mb-4">✅</div>
-            <h2 class="text-2xl font-black uppercase">Order Logged</h2>
-            <button onclick="closeModal('checkoutModal')" class="mt-4 text-[10px] opacity-20 font-black">CLOSE</button>
+            <button onclick="handleAuth()" id="auth-submit-btn" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px]">Continue</button>
+            <button onclick="closeModal('authModal')" class="w-full text-[9px] font-black opacity-20 mt-4">Cancel</button>
         </div>
     </div>
 </div>
 
 <header class="p-6 flex items-center justify-between sticky top-0 bg-[#0a0a0a] z-50">
-    <div class="flex items-center">
-        <div id="global-back-btn" onclick="showPage('home')" class="back-btn-ui">←</div>
-        <h1 class="brand-logo">Event clouds 👑</h1>
-    </div>
-    <div id="user-display" class="text-[10px] font-black uppercase opacity-30">Guest</div>
+    <h1 class="brand-logo">Event clouds 👑</h1>
+    <div id="user-display" class="text-[10px] font-black opacity-30">Guest</div>
 </header>
 
 <main class="p-6 max-w-7xl mx-auto">
     <section id="page-home"><div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div></section>
 
     <section id="page-admin" class="hidden">
-        <div class="flex gap-4 mb-10 overflow-x-auto no-scrollbar">
-            <button id="btn-inventory" onclick="switchAdminTab('inventory')" class="adm-btn bg-white text-black px-8 py-3 rounded-full text-[10px] font-black uppercase">Products</button>
-            <button id="btn-orders" onclick="switchAdminTab('orders')" class="adm-btn bg-[#111] text-gray-500 px-8 py-3 rounded-full text-[10px] font-black uppercase">Orders</button>
-        </div>
-        <div id="tab-inventory">
-            <div class="bg-[#111] p-8 rounded-[40px] mb-8 border border-[#222]">
-                <h3 class="text-[11px] font-black uppercase mb-6">Upload Item</h3>
-                <div class="grid md:grid-cols-2 gap-4">
-                    <input type="text" id="p-name" placeholder="NAME" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
-                    <input type="number" id="p-price" placeholder="PRICE" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
-                    <textarea id="p-desc" placeholder="DESCRIPTION" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px] md:col-span-2 h-24 rounded-2xl"></textarea>
-                    <input type="file" id="p-file" accept="image/*" class="text-[10px] p-2 bg-[#1a1a1a] text-gray-400 w-full rounded-xl">
-                    <button id="p-submit-btn" onclick="handlePublish()" class="bg-white text-black p-4 rounded-2xl font-black text-[11px] uppercase">Post Product</button>
-                </div>
+        <div class="bg-[#111] p-8 rounded-[40px] mb-8 border border-[#222]">
+            <h3 class="text-[11px] font-black uppercase mb-6 text-white">Upload New Item</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+                <input type="text" id="p-name" placeholder="NAME" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
+                <input type="number" id="p-price" placeholder="PRICE" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
+                <textarea id="p-desc" placeholder="DESCRIPTION" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px] md:col-span-2 h-24 rounded-2xl"></textarea>
+                <input type="file" id="p-file" accept="image/*" class="text-[10px] p-2 bg-[#1a1a1a] text-gray-400 w-full rounded-xl">
+                <button id="p-submit-btn" onclick="handlePublish()" class="bg-white text-black p-4 rounded-2xl font-black text-[11px] uppercase">Post Product</button>
             </div>
-            <div id="inventory-list" class="grid gap-3"></div>
         </div>
-        <div id="tab-orders" class="hidden space-y-4"></div>
+        <div id="inventory-list" class="grid gap-3"></div>
     </section>
 </main>
 
 <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-[35px] p-6 flex justify-around items-center z-50 nav-card text-white">
-    <div onclick="showPage('home')" class="cursor-pointer text-center">🏠<p class="text-[8px] font-black mt-1 opacity-50">STORE</p></div>
-    <div onclick="openModal('authModal')" class="cursor-pointer text-center">👤<p class="text-[8px] font-black mt-1 opacity-50">ACCOUNT</p></div>
-    <div onclick="openModal('staffAuthModal')" class="cursor-pointer text-center">🛡️<p class="text-[8px] font-black mt-1 opacity-50">STAFF</p></div>
+    <div onclick="showPage('home')" class="cursor-pointer">🏠</div>
+    <div onclick="openModal('authModal')" class="cursor-pointer">👤</div>
+    <div onclick="openModal('staffAuthModal')" class="cursor-pointer">🛡️</div>
 </nav>
 
 <script type="module">
@@ -136,133 +93,127 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-
     let currentUser = null;
-    let selectedProduct = "";
 
-    // Helper: Compress Image for 10x Faster Upload
-    const compressImage = (file) => {
-        return new Promise((resolve) => {
+    // --- FASTER IMAGE COMPRESSION ---
+    const compressImg = (file) => {
+        return new Promise((res) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = (event) => {
+            reader.onload = (e) => {
                 const img = new Image();
-                img.src = event.target.result;
+                img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800;
-                    const scale = MAX_WIDTH / img.width;
-                    canvas.width = MAX_WIDTH;
+                    const width = 600; // Smaller width for speed
+                    const scale = width / img.width;
+                    canvas.width = width;
                     canvas.height = img.height * scale;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7);
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    canvas.toBlob((blob) => res(blob), 'image/jpeg', 0.6); // 60% quality
                 };
             };
         });
     };
 
-    window.openModal = id => document.getElementById(id).classList.add('active-modal');
-    window.closeModal = id => document.getElementById(id).classList.remove('active-modal');
+    window.openModal = id => document.getElementById(id).style.display = 'flex';
+    window.closeModal = id => document.getElementById(id).style.display = 'none';
     window.showPage = id => {
-        document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+        document.getElementById('page-home').classList.add('hidden');
+        document.getElementById('page-admin').classList.add('hidden');
         document.getElementById(`page-${id}`).classList.remove('hidden');
     };
 
     window.verifyStaffKey = () => {
         if(document.getElementById('staff-key-input').value === "GHOSTYDEVELOPER") {
-            closeModal('staffAuthModal'); showPage('admin'); loadOrders();
-        } else alert("Wrong Key");
+            closeModal('staffAuthModal'); showPage('admin');
+        } else alert("Invalid Key");
     };
 
+    // --- UPLOAD HANDLER ---
     window.handlePublish = async () => {
         const name = document.getElementById('p-name').value;
         const price = document.getElementById('p-price').value;
         const desc = document.getElementById('p-desc').value;
-        const fileInput = document.getElementById('p-file');
+        const file = document.getElementById('p-file').files[0];
         const btn = document.getElementById('p-submit-btn');
 
-        if(!name || !fileInput.files[0]) return alert("Fill all fields");
+        if(!name || !file) return alert("Select Name and Image!");
 
+        btn.innerText = "PREPARING...";
         btn.disabled = true;
-        btn.innerText = "COMPRESSING...";
 
         try {
-            // 1. Fast Compression
-            const compressedBlob = await compressImage(fileInput.files[0]);
-            
-            btn.innerText = "UPLOADING...";
-            const fd = new FormData();
-            fd.append("image", compressedBlob);
-            
-            // 2. Upload to ImgBB
-            const r = await fetch("https://api.imgbb.com/1/upload?key=ed019955ccdfc5952b136e449d727e0b", { method: "POST", body: fd });
-            const d = await r.json();
+            const blob = await compressImg(file);
+            btn.innerText = "SENDING TO CLOUD...";
 
-            if(d.success) {
-                // 3. Save to Firebase
+            const formData = new FormData();
+            formData.append("image", blob);
+
+            // Using your ImgBB key
+            const res = await fetch("https://api.imgbb.com/1/upload?key=ed019955ccdfc5952b136e449d727e0b", {
+                method: "POST",
+                body: formData
+            });
+            
+            const data = await res.json();
+
+            if(data.success) {
+                btn.innerText = "SAVING...";
                 await addDoc(collection(db, "products"), {
-                    name, price, description: desc, image: d.data.url, createdAt: serverTimestamp()
+                    name, price, description: desc, image: data.data.url, createdAt: serverTimestamp()
                 });
-                alert("Done!");
-                location.reload(); 
+                alert("✅ SUCCESS!");
+                location.reload();
+            } else {
+                alert("ImgBB Error: " + data.error.message);
             }
-        } catch(e) { alert("Error: " + e.message); }
-        finally { btn.disabled = false; btn.innerText = "POST PRODUCT"; }
+        } catch (err) {
+            alert("Connection Error: " + err.message);
+        } finally {
+            btn.innerText = "POST PRODUCT";
+            btn.disabled = false;
+        }
     };
 
+    // --- DATA FETCHING ---
     onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), snap => {
         const prods = snap.docs.map(d => ({id: d.id, ...d.data()}));
         document.getElementById('product-grid').innerHTML = prods.map(p => `
-            <div class="bg-[#111] rounded-[35px] border border-[#222] overflow-hidden">
+            <div class="bg-[#111] rounded-3xl overflow-hidden border border-[#222]">
                 <img src="${p.image}" class="w-full aspect-square object-cover">
-                <div class="p-5">
-                    <p class="text-[10px] font-black uppercase opacity-30">${p.name}</p>
-                    <p class="text-xl font-black">Rs.${p.price}</p>
-                    <button onclick="startCheckout('${p.name}')" class="w-full py-4 bg-white text-black rounded-2xl text-[9px] font-black uppercase mt-4">Buy Now</button>
+                <div class="p-4">
+                    <p class="text-[10px] font-bold opacity-40">${p.name}</p>
+                    <p class="text-lg font-black">Rs.${p.price}</p>
+                    <button class="w-full bg-white text-black py-3 rounded-xl font-bold text-[10px] mt-2">BUY</button>
                 </div>
             </div>
         `).join('');
+        
         document.getElementById('inventory-list').innerHTML = prods.map(p => `
-            <div class="bg-[#111] p-4 rounded-2xl border border-[#222] flex justify-between items-center">
-                <p class="text-[10px] font-black uppercase">${p.name}</p>
-                <button onclick="removeProduct('${p.id}')" class="text-red-500 font-black text-[8px]">DELETE</button>
+            <div class="bg-[#111] p-4 rounded-xl border border-[#222] flex justify-between">
+                <span>${p.name}</span>
+                <button onclick="deleteProd('${p.id}')" class="text-red-500 font-bold">DEL</button>
             </div>
         `).join('');
     });
 
-    window.removeProduct = async id => { if(confirm("Delete?")) await deleteDoc(doc(db, "products", id)); };
+    window.deleteProd = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "products", id)); };
 
     window.handleAuth = async () => {
-        const email = document.getElementById('auth-email').value;
-        const pass = document.getElementById('auth-pass').value;
+        const e = document.getElementById('auth-email').value;
+        const p = document.getElementById('auth-pass').value;
         try {
-            await signInWithEmailAndPassword(auth, email, pass);
+            await signInWithEmailAndPassword(auth, e, p);
             closeModal('authModal');
-        } catch(e) { 
-            try { 
-                await createUserWithEmailAndPassword(auth, email, pass); 
-                closeModal('authModal');
-            } catch(err) { alert(err.message); }
+        } catch {
+            await createUserWithEmailAndPassword(auth, e, p);
+            closeModal('authModal');
         }
     };
 
-    onAuthStateChanged(auth, user => { currentUser = user; document.getElementById('user-display').innerText = user ? "Active" : "Guest"; });
+    onAuthStateChanged(auth, u => { currentUser = u; document.getElementById('user-display').innerText = u ? "Active" : "Guest"; });
 
-    window.startCheckout = p => { if(!currentUser) return openModal('authModal'); selectedProduct = p; openModal('checkoutModal'); };
-    window.nextStep = s => { document.getElementById('check-step-1').classList.add('step-hidden'); document.getElementById('check-step-2').classList.remove('step-hidden'); };
-    window.submitOrder = async () => {
-        await addDoc(collection(db, "orders"), { product: selectedProduct, ign: document.getElementById('ord-discord').value, timestamp: serverTimestamp() });
-        document.getElementById('check-step-2').classList.add('step-hidden');
-        document.getElementById('check-step-3').classList.remove('step-hidden');
-        window.open(`https://wa.me/923706116030?text=I ordered ${selectedProduct}`, "_blank");
-    };
-
-    window.switchAdminTab = t => {
-        if(t === 'orders') { document.getElementById('tab-inventory').classList.add('hidden'); document.getElementById('tab-orders').classList.remove('hidden'); }
-        else { document.getElementById('tab-inventory').classList.remove('hidden'); document.getElementById('tab-orders').classList.add('hidden'); }
-    };
-    
     showPage('home');
 </script>
 </body>
