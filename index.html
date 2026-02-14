@@ -1,124 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Event clouds | PREMIUM STORE 👑</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0a0a0a; color: #fff; margin:0; padding-bottom:100px;}
-.brand-logo { font-size:1.6rem; font-weight:900; text-transform:uppercase; letter-spacing:-1.5px; color:#fff; display:flex; align-items:center; gap:8px; }
-.modal { display:none; position:fixed; z-index:1000; inset:0; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px);}
-.active-modal { display:flex; align-items:center; justify-content:center; }
-.portal-card { background:#fff; border-radius:45px; padding:40px 30px; width:95%; max-width:400px; max-height:90vh; overflow-y:auto; color:#000; }
-.staff-portal-card { background:#fff; border-radius:50px; padding:60px 40px; width:95%; max-width:420px; text-align:center; color:#000; }
-.staff-input-box { border:2px solid #3b82f6; border-radius:20px; margin:30px 0; padding:20px; box-shadow:0 10px 30px rgba(59,130,246,0.15);}
-.staff-input-box input { width:100%; border:none !important; background:transparent !important; text-align:center; font-size:24px; letter-spacing:8px; color:#000; outline:none;}
-.unlock-btn { background:#000; color:#fff; width:100%; padding:22px; border-radius:20px; font-weight:900; text-transform:uppercase; letter-spacing:2px; font-size:12px;}
-input { border:2px solid #f0f0f0; outline:none; transition:all 0.2s; border-radius:18px; font-weight:600; color:#000;}
-input:focus { border-color:#000; background:#fff; }
-.back-btn-ui { display:none; cursor:pointer; font-size:1.8rem; font-weight:900; color:#fff; margin-right:15px;}
-.nav-card { box-shadow:0 -10px 40px rgba(0,0,0,0.5); background:#111; border-top:1px solid #222;}
-.step-hidden { display:none; }
-.no-scrollbar::-webkit-scrollbar { display:none; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event clouds | PREMIUM STORE 👑</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #0a0a0a; color: #fff; margin:0; padding-bottom:100px; overflow-x: hidden;}
+        .brand-logo { font-size:1.6rem; font-weight:900; text-transform:uppercase; letter-spacing:-1.5px; color:#fff; display:flex; align-items:center; gap:8px; }
+        .modal { display:none; position:fixed; z-index:1000; inset:0; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px);}
+        .active-modal { display:flex; align-items:center; justify-content:center; }
+        .portal-card { background:#fff; border-radius:45px; padding:40px 30px; width:95%; max-width:400px; max-height:90vh; overflow-y:auto; color:#000; }
+        .staff-portal-card { background:#fff; border-radius:50px; padding:60px 40px; width:95%; max-width:420px; text-align:center; color:#000; }
+        .staff-input-box { border:2px solid #3b82f6; border-radius:20px; margin:30px 0; padding:20px; box-shadow:0 10px 30px rgba(59,130,246,0.15);}
+        .staff-input-box input { width:100%; border:none !important; background:transparent !important; text-align:center; font-size:24px; letter-spacing:8px; color:#000; outline:none;}
+        .unlock-btn { background:#000; color:#fff; width:100%; padding:22px; border-radius:20px; font-weight:900; text-transform:uppercase; letter-spacing:2px; font-size:12px;}
+        input { border:2px solid #f0f0f0; outline:none; transition:all 0.2s; border-radius:18px; font-weight:600; color:#000;}
+        input:focus { border-color:#000; background:#fff; }
+        .back-btn-ui { display:none; cursor:pointer; font-size:1.8rem; font-weight:900; color:#fff; margin-right:15px;}
+        .nav-card { box-shadow:0 -10px 40px rgba(0,0,0,0.5); background:#111; border-top:1px solid #222;}
+        
+        /* Custom Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #fff;
+            color: #000;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(150%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .toast.active { transform: translateX(0); }
+        .no-scrollbar::-webkit-scrollbar { display:none; }
+    </style>
 </head>
 <body>
 
-<!-- STAFF AUTH MODAL -->
 <div id="staffAuthModal" class="modal">
-<div class="staff-portal-card">
-<h2 class="text-3xl italic font-black uppercase tracking-tighter">STAFF ACCESS</h2>
-<p class="text-[10px] font-bold opacity-30 uppercase tracking-widest mt-1">Secure Portal</p>
-<div class="staff-input-box">
-<input type="password" id="staff-key-input" placeholder="••••••••">
-</div>
-<button onclick="verifyStaffKey()" class="unlock-btn">Unlock</button>
-<button onclick="closeModal('staffAuthModal')" class="w-full text-[10px] font-black opacity-20 uppercase mt-8 tracking-widest">Cancel</button>
-</div>
+    <div class="staff-portal-card">
+        <h2 class="text-3xl italic font-black uppercase tracking-tighter">STAFF ACCESS</h2>
+        <p class="text-[10px] font-bold opacity-30 uppercase tracking-widest mt-1">Secure Portal</p>
+        <div class="staff-input-box">
+            <input type="password" id="staff-key-input" placeholder="••••••••">
+        </div>
+        <button onclick="verifyStaffKey()" class="unlock-btn">Unlock</button>
+        <button onclick="closeModal('staffAuthModal')" class="w-full text-[10px] font-black opacity-20 uppercase mt-8 tracking-widest">Cancel</button>
+    </div>
 </div>
 
-<!-- USER AUTH MODAL -->
 <div id="authModal" class="modal">
-<div class="portal-card">
-<h2 id="auth-title" class="text-2xl font-black uppercase mb-6 tracking-tighter">Create Account</h2>
-<div id="signup-fields" class="space-y-3">
-<input type="text" id="reg-name" placeholder="FULL NAME" class="w-full p-4 bg-gray-50 text-[11px]">
-<input type="text" id="reg-phone" placeholder="WHATSAPP NUMBER" class="w-full p-4 bg-gray-50 text-[11px]">
-</div>
-<div class="space-y-3 mt-3">
-<input type="email" id="auth-email" placeholder="EMAIL ADDRESS" class="w-full p-4 bg-gray-50 text-[11px]">
-<input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full p-4 bg-gray-50 text-[11px]">
-<button onclick="handleAuth()" id="auth-submit-btn" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px] uppercase mt-4">Register Now</button>
-<p onclick="toggleAuthMode()" id="auth-toggle" class="text-[10px] font-bold text-center cursor-pointer opacity-50 uppercase mt-6">Already have an account? Sign In</p>
-<button onclick="resetPassword()" class="w-full text-[10px] font-black opacity-50 uppercase mt-2">Forgot Password?</button>
-<button onclick="closeModal('authModal')" class="w-full text-[9px] font-black opacity-20 uppercase mt-4">Cancel</button>
-</div>
-</div>
+    <div class="portal-card">
+        <h2 id="auth-title" class="text-2xl font-black uppercase mb-6 tracking-tighter">Create Account</h2>
+        <div id="signup-fields" class="space-y-3">
+            <input type="text" id="reg-name" placeholder="FULL NAME" class="w-full p-4 bg-gray-50 text-[11px]">
+            <input type="text" id="reg-phone" placeholder="WHATSAPP NUMBER" class="w-full p-4 bg-gray-50 text-[11px]">
+        </div>
+        <div class="space-y-3 mt-3">
+            <input type="email" id="auth-email" placeholder="EMAIL ADDRESS" class="w-full p-4 bg-gray-50 text-[11px]">
+            <input type="password" id="auth-pass" placeholder="PASSWORD" class="w-full p-4 bg-gray-50 text-[11px]">
+            <button onclick="handleAuth()" id="auth-submit-btn" class="w-full bg-black text-white py-5 rounded-2xl font-black text-[11px] uppercase mt-4">Register Now</button>
+            <p onclick="toggleAuthMode()" id="auth-toggle" class="text-[10px] font-bold text-center cursor-pointer opacity-50 uppercase mt-6">Already have an account? Sign In</p>
+            <button onclick="closeModal('authModal')" class="w-full text-[9px] font-black opacity-20 uppercase mt-4">Cancel</button>
+        </div>
+    </div>
 </div>
 
-<!-- HEADER -->
 <header class="p-6 md:px-12 flex items-center justify-between sticky top-0 bg-[#0a0a0a] z-50">
-<div class="flex items-center">
-<div id="global-back-btn" onclick="showPage('home')" class="back-btn-ui">←</div>
-<h1 class="brand-logo">Event clouds 👑</h1>
-</div>
-<div id="user-display" class="text-[10px] font-black uppercase tracking-widest opacity-30">Guest</div>
+    <div class="flex items-center">
+        <div id="global-back-btn" onclick="showPage('home')" class="back-btn-ui">←</div>
+        <h1 class="brand-logo">Event clouds 👑</h1>
+    </div>
+    <div id="user-display" class="text-[10px] font-black uppercase tracking-widest opacity-30">Checking... ⏳</div>
 </header>
 
-<!-- MAIN STORE -->
 <main class="p-6 md:px-12 max-w-7xl mx-auto">
-<section id="page-home">
-<div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
-</section>
+    <section id="page-home">
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-4 gap-6"></div>
+    </section>
 
-<section id="page-admin" class="hidden">
-<div class="flex gap-4 mb-10 overflow-x-auto pb-2 no-scrollbar">
-<button id="btn-inventory" onclick="switchAdminTab('inventory')" class="adm-btn bg-white text-black px-8 py-3 rounded-full text-[10px] font-black uppercase">Products</button>
-<button id="btn-orders" onclick="switchAdminTab('orders')" class="adm-btn bg-[#111] text-gray-500 px-8 py-3 rounded-full text-[10px] font-black uppercase">Orders</button>
-<button id="btn-users" onclick="switchAdminTab('users')" class="adm-btn bg-[#111] text-gray-500 px-8 py-3 rounded-full text-[10px] font-black uppercase">Accounts</button>
-</div>
+    <section id="page-admin" class="hidden">
+        <div class="flex gap-4 mb-10 overflow-x-auto pb-2 no-scrollbar">
+            <button id="btn-inventory" onclick="switchAdminTab('inventory')" class="adm-btn bg-white text-black px-8 py-3 rounded-full text-[10px] font-black uppercase">Products</button>
+            <button id="btn-orders" onclick="switchAdminTab('orders')" class="adm-btn bg-[#111] text-gray-500 px-8 py-3 rounded-full text-[10px] font-black uppercase">Orders</button>
+            <button id="btn-users" onclick="switchAdminTab('users')" class="adm-btn bg-[#111] text-gray-500 px-8 py-3 rounded-full text-[10px] font-black uppercase">Accounts</button>
+        </div>
 
-<div id="tab-inventory" class="adm-tab">
-<div class="bg-[#111] p-8 rounded-[40px] mb-8 border border-[#222]">
-<h3 class="text-[11px] font-black uppercase mb-6 text-white">Upload New Item</h3>
-<div class="grid md:grid-cols-2 gap-4">
-<input type="text" id="p-name" placeholder="NAME" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
-<input type="number" id="p-price" placeholder="PRICE" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
-<input type="text" id="p-desc" placeholder="DESCRIPTION" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
-<input type="file" id="p-file" class="text-[10px] p-2 bg-[#1a1a1a] text-gray-400 w-full rounded-xl">
-<button id="p-submit-btn" onclick="handlePublish()" class="bg-white text-black p-4 rounded-2xl font-black text-[11px] uppercase">Post Product</button>
-</div>
-</div>
-<div id="inventory-list" class="grid gap-3"></div>
-</div>
+        <div id="tab-inventory" class="adm-tab">
+            <div class="bg-[#111] p-8 rounded-[40px] mb-8 border border-[#222]">
+                <h3 class="text-[11px] font-black uppercase mb-6 text-white">Upload New Item</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <input type="text" id="p-name" placeholder="NAME" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
+                    <input type="number" id="p-price" placeholder="PRICE" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
+                    <input type="text" id="p-desc" placeholder="DESCRIPTION" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
+                    <input type="file" id="p-file" class="text-[10px] p-2 bg-[#1a1a1a] text-gray-400 w-full rounded-xl">
+                    <button id="p-submit-btn" onclick="handlePublish()" class="bg-white text-black p-4 rounded-2xl font-black text-[11px] uppercase transition active:scale-95">Post Product</button>
+                </div>
+            </div>
+            <div id="inventory-list" class="grid gap-3"></div>
+        </div>
 
-<div id="tab-orders" class="adm-tab hidden space-y-4"></div>
-<div id="tab-users" class="adm-tab hidden space-y-3"></div>
-</section>
+        <div id="tab-orders" class="adm-tab hidden space-y-4"></div>
+        <div id="tab-users" class="adm-tab hidden space-y-3"></div>
+    </section>
 </main>
 
 <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-md rounded-[35px] p-6 flex justify-around items-center z-50 nav-card text-white">
-<div onclick="showPage('home')" class="cursor-pointer text-center">
-<span class="block text-xl">🏠</span>
-<p class="text-[8px] font-black uppercase mt-1 opacity-50">Store</p>
-</div>
-<div onclick="openModal('authModal')" class="cursor-pointer text-center">
-<span class="block text-xl">👤</span>
-<p class="text-[8px] font-black uppercase mt-1 opacity-50">Account</p>
-</div>
-<div onclick="openModal('staffAuthModal')" class="cursor-pointer text-center">
-<span class="block text-xl">🛡️</span>
-<p class="text-[8px] font-black uppercase mt-1 opacity-50">Staff</p>
-</div>
+    <div onclick="showPage('home')" class="cursor-pointer text-center">
+        <span class="block text-xl">🏠</span>
+        <p class="text-[8px] font-black uppercase mt-1 opacity-50">Store</p>
+    </div>
+    <div onclick="openModal('authModal')" class="cursor-pointer text-center">
+        <span class="block text-xl">👤</span>
+        <p class="text-[8px] font-black uppercase mt-1 opacity-50">Account</p>
+    </div>
+    <div onclick="openModal('staffAuthModal')" class="cursor-pointer text-center">
+        <span class="block text-xl">🛡️</span>
+        <p class="text-[8px] font-black uppercase mt-1 opacity-50">Staff</p>
+    </div>
 </nav>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyB-7z5W4laDVqgtQNUOrDkAMQU7sHw0NQY",
   authDomain: "ghosty-cd076.firebaseapp.com",
@@ -134,7 +150,19 @@ const auth = getAuth(app);
 
 let currentUser = null;
 let isSignUp = true;
-let selectedProduct = "";
+
+// -------------------- BEAUTIFUL NOTIFICATIONS --------------------
+window.notify = (msg, icon = "✨") => {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span>${icon}</span> ${msg}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('active'), 100);
+    setTimeout(() => {
+        toast.classList.remove('active');
+        setTimeout(() => toast.remove(), 400);
+    }, 3000);
+};
 
 // -------------------- GLOBAL UI --------------------
 window.openModal = id => document.getElementById(id).classList.add('active-modal');
@@ -151,10 +179,13 @@ window.verifyStaffKey = () => {
     closeModal('staffAuthModal');
     showPage('admin');
     loadAdminExtras();
-  } else alert("Wrong Key");
+    notify("Welcome Back, Admin! 🛠️", "🔥");
+  } else {
+    notify("Invalid Master Key!", "🚫");
+  }
 };
 
-// -------------------- PRODUCT UPLOAD --------------------
+// -------------------- PRODUCT UPLOAD (FIXED) --------------------
 window.handlePublish = async () => {
   const name = document.getElementById('p-name').value;
   const price = document.getElementById('p-price').value;
@@ -162,13 +193,13 @@ window.handlePublish = async () => {
   const fileInput = document.getElementById('p-file');
   const btn = document.getElementById('p-submit-btn');
 
-  if(!name || !price || !desc || !fileInput.files[0]){
-    alert("Please fill all fields and select an image.");
+  if(!name || !price || !fileInput.files[0]){
+    notify("Complete all fields!", "⚠️");
     return;
   }
 
   btn.disabled = true;
-  btn.innerText = "UPLOADING...";
+  btn.innerText = "🚀 UPLOADING...";
 
   try {
     const fd = new FormData();
@@ -180,21 +211,22 @@ window.handlePublish = async () => {
     if(d.success){
       await addDoc(collection(db, "products"), {
         name,
-        price,
+        price: Number(price),
         description: desc,
         image: d.data.url,
         createdAt: serverTimestamp()
       });
 
-      alert("✅ PRODUCT UPLOADED SUCCESSFULLY!");
+      notify("Product Posted Successfully! 💎", "✅");
       document.getElementById('p-name').value = "";
       document.getElementById('p-price').value = "";
       document.getElementById('p-desc').value = "";
       fileInput.value = "";
-    } else alert("Image upload failed.");
+    } else {
+        notify("Image host error!", "❌");
+    }
   } catch(e){
-    console.error(e);
-    alert("Error: " + e.message);
+    notify("Upload failed!", "❌");
   } finally {
     btn.disabled = false;
     btn.innerText = "Post Product";
@@ -204,58 +236,32 @@ window.handlePublish = async () => {
 // -------------------- REAL-TIME PRODUCTS --------------------
 onSnapshot(query(collection(db,"products"), orderBy("createdAt","desc")), snap => {
   const products = snap.docs.map(d => ({id:d.id,...d.data()}));
-
-  // Storefront
   document.getElementById('product-grid').innerHTML = products.map(p=>`
-    <div class="bg-[#111] rounded-[35px] border border-[#222] overflow-hidden">
-      <img src="${p.image}" class="w-full aspect-square object-cover">
+    <div class="bg-[#111] rounded-[35px] border border-[#222] overflow-hidden group">
+      <div class="overflow-hidden aspect-square">
+        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+      </div>
       <div class="p-5">
         <p class="text-[10px] font-black text-white uppercase opacity-30">${p.name}</p>
-        <p class="text-[9px] text-gray-400 mb-2">${p.description}</p>
+        <p class="text-[9px] text-gray-400 mb-2 line-clamp-1">${p.description}</p>
         <p class="text-xl font-black mb-4 text-white">Rs.${p.price}</p>
-        <button onclick="buyNow('${p.name}')" class="w-full py-4 bg-white text-black rounded-2xl text-[9px] font-black uppercase">Buy Now</button>
+        <button onclick="buyNow('${p.name}', '${p.price}')" class="w-full py-4 bg-white text-black rounded-2xl text-[9px] font-black uppercase transition active:scale-90">Buy Now</button>
       </div>
     </div>
   `).join('');
 
-  // Admin Inventory
   document.getElementById('inventory-list').innerHTML = products.map(p=>`
     <div class="bg-[#111] p-4 rounded-2xl border border-[#222] flex justify-between items-center">
       <div>
         <p class="text-[10px] font-black uppercase text-white">${p.name}</p>
-        <p class="text-[9px] text-gray-400">${p.description} | Rs.${p.price}</p>
+        <p class="text-[9px] text-gray-400">Rs.${p.price}</p>
       </div>
       <button onclick="removeProduct('${p.id}')" class="text-red-500 font-black text-[8px] uppercase">Remove</button>
     </div>
   `).join('');
 });
 
-// -------------------- ADMIN EXTRAS --------------------
-window.loadAdminExtras = () => {
-  onSnapshot(collection(db,"users"), snap => {
-    document.getElementById('tab-users').innerHTML = snap.docs.map(d=>`
-      <div class="bg-[#111] p-6 rounded-3xl border border-[#222]">
-        <p class="text-[11px] font-black text-white uppercase">${d.data().name}</p>
-        <p class="text-[9px] text-gray-500">WA: ${d.data().phone} | ${d.data().email}</p>
-      </div>`).join('');
-  });
-
-  onSnapshot(query(collection(db,"orders"), orderBy("timestamp","desc")), snap => {
-    document.getElementById('tab-orders').innerHTML = snap.docs.map(d=>`
-      <div class="bg-[#111] p-6 rounded-3xl border border-[#222] flex justify-between items-start">
-        <div>
-          <p class="text-[12px] font-black text-blue-400 uppercase">${d.data().product}</p>
-          <p class="text-[10px] font-bold text-white">Discord: ${d.data().ign}</p>
-        </div>
-        <button onclick="removeOrder('${d.id}')" class="text-red-500 text-[8px] font-black uppercase">Delete</button>
-      </div>`).join('');
-  });
-};
-
-window.removeProduct = async id => { if(confirm("Permanently delete this product?")) await deleteDoc(doc(db,"products",id)); };
-window.removeOrder = async id => { if(confirm("Delete this order?")) await deleteDoc(doc(db,"orders",id)); };
-
-// -------------------- AUTH --------------------
+// -------------------- AUTH LOGIC --------------------
 window.handleAuth = async () => {
   const email = document.getElementById('auth-email').value;
   const pass = document.getElementById('auth-pass').value;
@@ -266,15 +272,59 @@ window.handleAuth = async () => {
       await setDoc(doc(db,"users",res.user.uid), {
         name: document.getElementById('reg-name').value,
         phone: document.getElementById('reg-phone').value,
-        email, password: pass
+        email, role: 'user'
       });
+      notify("Account Created! Welcome 👑", "🎉");
     } else {
       await signInWithEmailAndPassword(auth,email,pass);
+      notify(`Signed in as ${email.split('@')[0]}!`, "⚡");
     }
     closeModal('authModal');
-  } catch(e){ alert(e.message); }
+  } catch(e){ 
+      notify(e.message.split('/')[1]?.replace(')', '') || "Auth Error", "❌"); 
+  }
 };
 
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  const display = document.getElementById('user-display');
+  if(user) {
+      display.innerText = `${user.email.split('@')[0]} 🟢`;
+      display.classList.replace('opacity-30', 'opacity-100');
+      display.style.color = "#4ade80";
+  } else {
+      display.innerText = "Guest Mode ⚪";
+      display.classList.replace('opacity-100', 'opacity-30');
+      display.style.color = "#fff";
+  }
+});
+
+// -------------------- BUY NOW --------------------
+window.buyNow = async (pName, pPrice) => {
+  if(!currentUser) {
+      notify("Login Required!", "👤");
+      return openModal('authModal');
+  }
+
+  const discord = prompt("Enter your Discord ID:");
+  if(!discord) return notify("Discord ID is required!", "⚠️");
+
+  notify("Processing Order... 🛒", "⌛");
+
+  await addDoc(collection(db,"orders"),{
+    product: pName,
+    price: pPrice,
+    ign: discord,
+    userEmail: currentUser.email,
+    timestamp: serverTimestamp()
+  });
+
+  const msg = encodeURIComponent(`👑 *NEW ORDER* 👑\n\nItem: ${pName}\nPrice: Rs.${pPrice}\nUser: ${currentUser.email}\nDiscord: ${discord}`);
+  window.open(`https://wa.me/923706116030?text=${msg}`,"_blank");
+  notify("Order Sent to WhatsApp! ✅", "📲");
+};
+
+// -------------------- HELPERS --------------------
 window.toggleAuthMode = () => {
   isSignUp = !isSignUp;
   document.getElementById('auth-title').innerText = isSignUp ? "Create Account" : "Sign In";
@@ -282,43 +332,25 @@ window.toggleAuthMode = () => {
   document.getElementById('signup-fields').style.display = isSignUp ? 'block' : 'none';
 };
 
-onAuthStateChanged(auth, user => {
-  currentUser = user;
-  document.getElementById('user-display').innerText = user ? "Connected" : "Guest";
-});
-
-// -------------------- BUY NOW --------------------
-window.buyNow = async pName => {
-  if(!currentUser) return openModal('authModal');
-
-  const name = prompt("Enter your full name:");
-  const discord = prompt("Enter your Discord ID:");
-  const wa = prompt("Enter WhatsApp (optional):") || "N/A";
-
-  if(!name || !discord) return alert("Name and Discord required!");
-
-  selectedProduct = pName;
-
-  await addDoc(collection(db,"orders"),{
-    product: selectedProduct,
-    ign: discord,
-    name,
-    wa,
-    timestamp: serverTimestamp()
-  });
-
-  alert("✅ Order logged! Contacting WhatsApp...");
-  const msg = encodeURIComponent(`👑 *NEW ORDER* 👑\nItem: ${selectedProduct}\nName: ${name}\nDiscord: ${discord}`);
-  window.open(`https://wa.me/923706116030?text=${msg}`,"_blank");
-};
-
-// -------------------- ADMIN TABS --------------------
 window.switchAdminTab = t => {
   document.querySelectorAll('.adm-btn').forEach(b=>{ b.classList.add('bg-[#111]','text-gray-500'); b.classList.remove('bg-white','text-black'); });
-  document.getElementById(`btn-${t}`).classList.replace('bg-[#111]','bg-white');
-  document.getElementById(`btn-${t}`).classList.replace('text-gray-500','text-black');
+  const btn = document.getElementById(`btn-${t}`);
+  btn.classList.replace('bg-[#111]','bg-white');
+  btn.classList.replace('text-gray-500','text-black');
   document.querySelectorAll('.adm-tab').forEach(tab=>tab.classList.add('hidden'));
   document.getElementById(`tab-${t}`).classList.remove('hidden');
+};
+
+window.removeProduct = async id => { if(confirm("Delete product?")) { await deleteDoc(doc(db,"products",id)); notify("Item Removed", "🗑️"); } };
+
+window.loadAdminExtras = () => {
+    onSnapshot(collection(db,"users"), snap => {
+        document.getElementById('tab-users').innerHTML = snap.docs.map(d=>`
+        <div class="bg-[#111] p-5 rounded-3xl border border-[#222]">
+            <p class="text-[11px] font-black text-white uppercase">${d.data().name || 'No Name'}</p>
+            <p class="text-[9px] text-gray-500">${d.data().email}</p>
+        </div>`).join('');
+    });
 };
 
 showPage('home');
