@@ -16,8 +16,8 @@
         .staff-input-box { border: 2px solid #3b82f6; border-radius: 20px; margin: 30px 0; padding: 20px; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.15); }
         .staff-input-box input { width: 100%; border: none !important; background: transparent !important; text-align: center; font-size: 24px; letter-spacing: 8px; color: #000; outline: none; }
         .unlock-btn { background: #000; color: #fff; width: 100%; padding: 22px; border-radius: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
-        input { border: 2px solid #f0f0f0; outline: none; transition: all 0.2s; border-radius: 18px; font-weight: 600; color: #000; }
-        input:focus { border-color: #000; background: #fff; }
+        input, textarea { border: 2px solid #f0f0f0; outline: none; transition: all 0.2s; border-radius: 18px; font-weight: 600; color: #000; }
+        input:focus, textarea:focus { border-color: #000; background: #fff; }
         .back-btn-ui { display: none; cursor: pointer; font-size: 1.8rem; font-weight: 900; color: #fff; margin-right: 15px; }
         .nav-card { box-shadow: 0 -10px 40px rgba(0,0,0,0.5); background: #111; border-top: 1px solid #222; }
         .step-hidden { display: none; }
@@ -124,6 +124,7 @@
                 <div class="grid md:grid-cols-2 gap-4">
                     <input type="text" id="p-name" placeholder="NAME" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
                     <input type="number" id="p-price" placeholder="PRICE" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px]">
+                    <textarea id="p-desc" placeholder="DESCRIPTION" class="w-full p-4 bg-[#1a1a1a] border-none text-white text-[11px] md:col-span-2 h-24 rounded-2xl"></textarea>
                     <input type="file" id="p-file" class="text-[10px] p-2 bg-[#1a1a1a] text-gray-400 w-full rounded-xl">
                     <button id="p-submit-btn" onclick="handlePublish()" class="bg-white text-black p-4 rounded-2xl font-black text-[11px] uppercase">Post Product</button>
                 </div>
@@ -173,7 +174,6 @@
     let isSignUp = true;
     let selectedProduct = "";
 
-    // Global UI Handlers
     window.openModal = id => document.getElementById(id).classList.add('active-modal');
     window.closeModal = id => document.getElementById(id).classList.remove('active-modal');
     window.showPage = id => {
@@ -182,7 +182,6 @@
         document.getElementById('global-back-btn').style.display = (id === 'home') ? 'none' : 'block';
     };
 
-    // Staff Portal Auth
     window.verifyStaffKey = () => {
         if(document.getElementById('staff-key-input').value === "GHOSTYDEVELOPER") {
             closeModal('staffAuthModal'); 
@@ -191,15 +190,16 @@
         } else alert("Wrong Key");
     };
 
-    // Product Upload Logic (REPAIRED)
+    // Upload Logic with Description
     window.handlePublish = async () => {
         const name = document.getElementById('p-name').value;
         const price = document.getElementById('p-price').value;
+        const desc = document.getElementById('p-desc').value; // Added
         const fileInput = document.getElementById('p-file');
         const btn = document.getElementById('p-submit-btn');
 
         if(!name || !price || !fileInput.files[0]) {
-            alert("Please fill all fields and select an image.");
+            alert("Please fill all fields.");
             return;
         }
 
@@ -209,30 +209,25 @@
         try {
             const fd = new FormData(); 
             fd.append("image", fileInput.files[0]);
-            
-            // Upload to ImgBB
             const r = await fetch("https://api.imgbb.com/1/upload?key=ed019955ccdfc5952b136e449d727e0b", { method: "POST", body: fd });
             const d = await r.json();
 
             if(d.success) {
-                // Save to Firestore
                 await addDoc(collection(db, "products"), { 
                     name: name, 
                     price: price, 
+                    description: desc, // Saved to Firebase
                     image: d.data.url, 
                     createdAt: serverTimestamp() 
                 });
                 
                 alert("✅ PRODUCT UPLOADED SUCCESSFULLY!");
-                // Clear inputs
                 document.getElementById('p-name').value = "";
                 document.getElementById('p-price').value = "";
+                document.getElementById('p-desc').value = ""; // Clear
                 fileInput.value = "";
-            } else {
-                alert("Image upload failed. Try again.");
             }
         } catch(e) { 
-            console.error(e);
             alert("Error: " + e.message); 
         } finally {
             btn.disabled = false;
@@ -240,23 +235,22 @@
         }
     };
 
-    // Real-time Product Synchronizer (Prevents "Disappearing")
+    // Product Sync with Description Display
     onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), snap => {
         const productData = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        // Update Storefront
         document.getElementById('product-grid').innerHTML = productData.map(p => `
             <div class="bg-[#111] rounded-[35px] border border-[#222] overflow-hidden">
                 <img src="${p.image}" class="w-full aspect-square object-cover">
                 <div class="p-5">
                     <p class="text-[10px] font-black text-white uppercase opacity-30">${p.name}</p>
-                    <p class="text-xl font-black mb-4 text-white">Rs.${p.price}</p>
+                    <p class="text-xl font-black text-white">Rs.${p.price}</p>
+                    <p class="text-[9px] text-gray-400 mt-2 mb-4 line-clamp-2">${p.description || 'No description available.'}</p>
                     <button onclick="startCheckout('${p.name}')" class="w-full py-4 bg-white text-black rounded-2xl text-[9px] font-black uppercase">Buy Now</button>
                 </div>
             </div>
         `).join('');
 
-        // Update Admin Inventory Tab
         document.getElementById('inventory-list').innerHTML = productData.map(p => `
             <div class="bg-[#111] p-4 rounded-2xl border border-[#222] flex justify-between items-center">
                 <p class="text-[10px] font-black uppercase text-white">${p.name}</p>
@@ -265,7 +259,6 @@
         `).join('');
     });
 
-    // Load extra admin data (Users/Orders)
     window.loadAdminExtras = () => {
         onSnapshot(collection(db, "users"), snap => {
             document.getElementById('tab-users').innerHTML = snap.docs.map(d => `
@@ -286,10 +279,9 @@
         });
     };
 
-    window.removeProduct = async id => { if(confirm("Permanently delete this product?")) await deleteDoc(doc(db, "products", id)); };
-    window.removeOrder = async id => { if(confirm("Delete this order?")) await deleteDoc(doc(db, "orders", id)); };
+    window.removeProduct = async id => { if(confirm("Permanently delete?")) await deleteDoc(doc(db, "products", id)); };
+    window.removeOrder = async id => { if(confirm("Delete order?")) await deleteDoc(doc(db, "orders", id)); };
 
-    // Auth Logic
     window.handleAuth = async () => {
         const email = document.getElementById('auth-email').value;
         const pass = document.getElementById('auth-pass').value;
@@ -299,12 +291,9 @@
                 await setDoc(doc(db, "users", res.user.uid), { 
                     name: document.getElementById('reg-name').value, 
                     phone: document.getElementById('reg-phone').value, 
-                    email, 
-                    password: pass 
+                    email 
                 });
-            } else {
-                await signInWithEmailAndPassword(auth, email, pass);
-            }
+            } else await signInWithEmailAndPassword(auth, email, pass);
             closeModal('authModal');
         } catch(e) { alert(e.message); }
     };
@@ -316,23 +305,10 @@
         document.getElementById('signup-fields').style.display = isSignUp ? 'block' : 'none';
     };
 
-    onAuthStateChanged(auth, user => { 
-        currentUser = user; 
-        document.getElementById('user-display').innerText = user ? "Connected" : "Guest"; 
-    });
+    onAuthStateChanged(auth, user => { currentUser = user; document.getElementById('user-display').innerText = user ? "Connected" : "Guest"; });
 
-    // Checkout Flow
-    window.startCheckout = pName => { 
-        if(!currentUser) return openModal('authModal'); 
-        selectedProduct = pName; 
-        nextStep(1); 
-        openModal('checkoutModal'); 
-    };
-
-    window.nextStep = s => { 
-        [1,2,3].forEach(n => document.getElementById(`check-step-${n}`).classList.add('step-hidden')); 
-        document.getElementById(`check-step-${s}`).classList.remove('step-hidden'); 
-    };
+    window.startCheckout = pName => { if(!currentUser) return openModal('authModal'); selectedProduct = pName; nextStep(1); openModal('checkoutModal'); };
+    window.nextStep = s => { [1,2,3].forEach(n => document.getElementById(`check-step-${n}`).classList.add('step-hidden')); document.getElementById(`check-step-${s}`).classList.remove('step-hidden'); };
 
     window.submitOrder = async () => {
         const ign = document.getElementById('ord-discord').value;
@@ -349,7 +325,6 @@
     };
 
     window.contactDiscord = () => { window.open(`https://discord.com/users/devil_hunter_______`, "_blank"); };
-
     window.switchAdminTab = t => {
         document.querySelectorAll('.adm-btn').forEach(b => { b.classList.add('bg-[#111]','text-gray-500'); b.classList.remove('bg-white','text-black'); });
         document.getElementById(`btn-${t}`).classList.replace('bg-[#111]','bg-white');
